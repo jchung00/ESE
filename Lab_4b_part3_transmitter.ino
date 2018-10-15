@@ -20,10 +20,10 @@ void loop() {
   Serial.println("b2: " + b2Val);
   Serial.println("b3: " + b3Val);
   if(b1Val == 1 && b2Val == 0 && b3Val == 1){
-    BTSerial.println("H");
+    BTSerial.println("1");
   }
   else{
-    BTSerial.println("L)";
+    BTSerial.println("0");
   }
   delay(500);
 }
