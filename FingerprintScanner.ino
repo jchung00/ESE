@@ -3,6 +3,7 @@
 
 #include <SPI.h>
 #include <WiFi101.h>
+#include <avr/pgmspace.h>
  
 char ssid[] = "AirPennNet-Device"; //  your network SSID (name)
 char pass[] = "penn1740wifi"; // your network password
@@ -15,9 +16,6 @@ WiFiClient client;
 // ThingSpeak Settings
 char server[] = "api.thingspeak.com";
 String writeAPIKey = "1SWMTISZXF0A14E2";
-
-unsigned long lastConnectionTime = 0; // track the last connection time
-const unsigned long postingInterval = 40L * 1000L; // post data every 40 seconds
 
 int tempval = 0;
 
@@ -33,28 +31,28 @@ void setup()
 {
   Serial.begin(9600); //set up Arduino's hardware serial UART
    while ( status != WL_CONNECTED) {
-    Serial.println("Attempting to connect.");
+    Serial.println(F("Attempting to connect."));
     // Connect to WPA/WPA2 Wi-Fi network
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection
     delay(10000);
   }
-  Serial.println("Wifi connected!");
+  Serial.println(F("Wifi connected!"));
 
   delay(100);
   //fps.UseSerialDebug = true;
   fps.Open();         //send serial command to initialize fps
   fps.SetLED(true);   //turn on LED so fps can see fingerprint
   pinMode(SWITCH, INPUT);
-  Serial.println("System booting...");
+  Serial.println(F("System booting..."));
 }
 
 void httpRequest(int id) {
   // read analog pin 5
   tempval = id;     // read the temperature sensor pin
   Serial.print(id);
-  Serial.println(" will be marked as present");
+  Serial.println(F(" will be marked as present"));
 
   // create data string to send to ThingSpeak
   String data = String("field1=" + String(id, DEC)); 
@@ -74,9 +72,6 @@ void httpRequest(int id) {
     client.print(data.length());
     client.print("\n\n");
     client.print(data);
-
-    // note the last connection time
-    lastConnectionTime = millis();
   }
 }
 
@@ -88,7 +83,7 @@ void Enroll(String pennKey)
   fps.EnrollStart(id);
 
   // enroll
-  Serial.print("Press finger to Enroll for: ");
+  Serial.print(F("Press finger to Enroll for: "));
   Serial.println(id);
   if(!fps.CheckEnrolled(id)){
     while(fps.IsPressFinger() == false) delay(100);
@@ -96,45 +91,45 @@ void Enroll(String pennKey)
     int iret = 0;
     if (bret != false)
     {
-      Serial.println("Remove finger");
+      Serial.println(F("Remove finger"));
       fps.Enroll1(); 
       while(fps.IsPressFinger() == true) delay(100);
-      Serial.println("Press same finger again");
+      Serial.println(F("Press same finger again"));
       while(fps.IsPressFinger() == false) delay(100);
       bret = fps.CaptureFinger(true);
       if (bret != false)
       {
-        Serial.println("Remove finger");
+        Serial.println(F("Remove finger"));
         fps.Enroll2();
         while(fps.IsPressFinger() == true) delay(100);
-        Serial.println("Press same finger yet again");
+        Serial.println(F("Press same finger yet again"));
         while(fps.IsPressFinger() == false) delay(100);
         bret = fps.CaptureFinger(true);
         if (bret != false)
         {
-          Serial.println("Remove finger");
+          Serial.println(F("Remove finger"));
           iret = fps.Enroll3();
           if (iret == 0)
           {
-            Serial.println("Enrolling Successful");
+            Serial.println(F("Enrolling Successful"));
           }
           else if(iret == 3){
-            Serial.println("Fingerprint has already been registered under a different ID");
+            Serial.println(F("Fingerprint has already been registered under a different ID"));
           }
           else
           {
-            Serial.print("Enrolling Failed with error code:");
+            Serial.print(F("Enrolling Failed with error code:"));
             Serial.println(iret);
           }
         }
-        else Serial.println("Failed to capture third finger");
+        else Serial.println(F("Failed to capture third finger"));
       }
-      else Serial.println("Failed to capture second finger");
+      else Serial.println(F("Failed to capture second finger"));
     }
-    else Serial.println("Failed to capture first finger");
+    else Serial.println(F("Failed to capture first finger"));
   }
   else{
-    Serial.println("Penn ID has already been registered");
+    Serial.println(F("Penn ID has already been registered"));
   }
 }
 
@@ -150,22 +145,22 @@ void idFinger(){
                 GT-511C1R can hold 20 fingerprint templates.
        Make sure to change the id depending on what
        model you are using */
-    Serial.println("Read: ");
+    Serial.println(F("Read: "));
     Serial.println(id);
     if (id < 200) //<- change id value depending model you are using
     {//if the fingerprint matches, provide the matching template ID
-      Serial.print("Verified ID:");
+      Serial.print(F("Verified ID:"));
       Serial.println(id);
       httpRequest(id);
     }
     else
     {//if unable to recognize
-      Serial.println("Finger not found");
+      Serial.println(F("Finger not found"));
     }
   }
   else
   {
-    Serial.println("Please press finger");
+    Serial.println(F("Please press finger"));
   }
   delay(100);
 }
@@ -174,17 +169,17 @@ void loop()
 {
   if(isOn){
     fps.SetLED(true);
-    Serial.println("Type Enroll or Attendance");
+    Serial.println(F("Type Enroll or Attendance"));
     String s = Serial.readString();
     if(s.equals("Enroll")){
       s = "";
-      Serial.println("Enroll Mode: On");
+      Serial.println(F("Enroll Mode: On"));
       while(true){
         //isOn = digitalRead(SWITCH);
-        Serial.println("Type in your Penn ID or type EXIT to exit Enroll Mode");
+        Serial.println(F("Type in your Penn ID or type EXIT to exit Enroll Mode"));
         delay(1000);
         String pennId = Serial.readString();
-        Serial.print("Input: ");
+        Serial.print(F("Input: "));
         Serial.println(pennId);
         if(pennId.equals("EXIT")){
           break;
@@ -197,12 +192,12 @@ void loop()
     }
     else if(s.equals("Attendance")){
       s = "";
-      Serial.println("Attendance Mode: On");
+      Serial.println(F("Attendance Mode: On"));
       while(true){
         //isOn = digitalRead(SWITCH);
         idFinger();
         delay(1000);
-        Serial.println("Type EXIT to exit Attendance Mode");
+        Serial.println(F("Type EXIT to exit Attendance Mode"));
         String command = Serial.readString();
         if(command.equals("EXIT")){
           break;
@@ -212,7 +207,7 @@ void loop()
     isOn = digitalRead(SWITCH);
   }
   else{
-    Serial.println("Pausing...");
+    Serial.println(F("Pausing..."));
     fps.SetLED(false);
     isOn = digitalRead(SWITCH);
     delay(1000);
