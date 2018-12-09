@@ -4,7 +4,7 @@
 #include <SPI.h>
 #include <WiFi101.h>
 #include <avr/pgmspace.h>
- 
+
 char ssid[] = "AirPennNet-Device"; //  your network SSID (name)
 char pass[] = "penn1740wifi"; // your network password
 
@@ -29,8 +29,8 @@ boolean isOn = true;
 
 void setup()
 {
-  Serial.begin(9600); //set up Arduino's hardware serial UART
-   while ( status != WL_CONNECTED) {
+  Serial.begin(115200); //set up Arduino's hardware serial UART
+   /*while ( status != WL_CONNECTED) {
     Serial.println(F("Attempting to connect."));
     // Connect to WPA/WPA2 Wi-Fi network
     status = WiFi.begin(ssid, pass);
@@ -38,7 +38,7 @@ void setup()
     // wait 10 seconds for connection
     delay(10000);
   }
-  Serial.println(F("Wifi connected!"));
+  Serial.println(F("Wifi connected!"));*/
 
   delay(100);
   //fps.UseSerialDebug = true;
@@ -151,7 +151,7 @@ void idFinger(){
     {//if the fingerprint matches, provide the matching template ID
       Serial.print(F("Verified ID:"));
       Serial.println(id);
-      httpRequest(id);
+      //httpRequest(id);
     }
     else
     {//if unable to recognize
