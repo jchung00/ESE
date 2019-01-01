@@ -15,7 +15,7 @@ WiFiClient client;
 
 // ThingSpeak Settings
 char server[] = "api.thingspeak.com";
-String writeAPIKey = "1SWMTISZXF0A14E2";
+String writeAPIKey = "########";
 
 int tempval = 0;
 
